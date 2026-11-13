@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Study Planner</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <meta name="color-scheme" content="light dark">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Planner">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#f3f5fb">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ============ PLANNER (what everyone sees) ============ -->
+  <div id="planner" class="shell">
+    <nav class="nav" id="nav" aria-label="Main">
+      <div class="brand">Study Planner</div>
+      <button data-view="home" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></button>
+      <button data-view="tasks"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg><span>Tasks</span></button>
+      <button data-view="week"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><span>Week</span></button>
+      <button data-view="grades"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V10M12 21V4M19 21v-7"/></svg><span>Grades</span></button>
+      <button data-view="tools"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span>Tools</span></button>
+      <button data-view="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg><span>Settings</span></button>
+    </nav>
+
+    <main class="content">
+      <section class="view" id="v-home">
+        <header class="top">
+          <div><h1 id="greet">Study Planner</h1><p id="today"></p></div>
+          <button class="avatar" id="avatar" data-view="settings" aria-label="Profile and settings">S</button>
+        </header>
+        <div id="home-body"></div>
+      </section>
+
+      <section class="view" id="v-tasks" hidden>
+        <header class="top"><div><h1>Assignments</h1><p>Everything due, in order.</p></div></header>
+        <form id="add-form" class="card" autocomplete="off">
+          <input id="f-title" type="text" placeholder="Assignment, test, project…" aria-label="Title" required>
+          <div class="fields">
+            <select id="f-class" aria-label="Class"></select>
+            <input id="f-date" type="date" aria-label="Due date" required>
+            <button type="submit">Add</button>
+          </div>
+        </form>
+        <div class="toolbar">
+          <input id="search" type="search" placeholder="Search" aria-label="Search assignments">
+          <nav class="filters" id="filters" aria-label="Filter">
+            <button data-f="open" class="on">To do</button><button data-f="done">Done</button><button data-f="all">All</button>
+          </nav>
+        </div>
+        <div id="list"></div>
+        <p id="empty" class="none center" hidden></p>
+      </section>
+
+      <section class="view" id="v-week" hidden>
+        <header class="top"><div><h1>This week</h1><p id="week-range"></p></div>
+          <div class="wknav"><button id="week-prev" aria-label="Previous week">‹</button><button id="week-now">Today</button><button id="week-next" aria-label="Next week">›</button></div></header>
+        <div id="week-body"></div>
+      </section>
+
+      <section class="view" id="v-grades" hidden>
+        <header class="top"><div><h1>Grades</h1><p>Track scores and see where you stand.</p></div></header>
+        <div id="grade-summary"></div>
+        <form id="g-form" class="card" autocomplete="off">
+          <h2>Add a grade</h2>
+          <div class="fields"><select id="g-class" aria-label="Class"></select><input id="g-name" type="text" placeholder="Unit 3 test" aria-label="Name"></div>
+          <div class="fields nums">
+            <label>Score<input id="g-score" type="number" step="any" inputmode="decimal" placeholder="42" required></label>
+            <label>Out of<input id="g-max" type="number" step="any" inputmode="decimal" value="100"></label>
+            <label>Weight<input id="g-w" type="number" step="any" inputmode="decimal" value="1"></label>
+            <button type="submit">Add</button>
+          </div>
+          <p class="hint">Weight is how much it counts. A test might be 3, homework 1.</p>
+        </form>
+        <div id="grade-list"></div>
+        <section class="card calc">
+          <h2>What do I need on the final?</h2>
+          <div class="fields nums">
+            <label>Current grade %<input id="c-cur" type="number" step="any" inputmode="decimal" placeholder="88"></label>
+            <label>Final is worth %<input id="c-w" type="number" step="any" inputmode="decimal" placeholder="20"></label>
+            <label>Target grade %<input id="c-tgt" type="number" step="any" inputmode="decimal" placeholder="90"></label>
+          </div>
+          <p id="c-out" class="result" aria-live="polite">Enter all three numbers to see what you need.</p>
+        </section>
+      </section>
+
+      <section class="view" id="v-tools" hidden>
+        <header class="top"><div><h1>Study tools</h1><p>Focus, schedule, notes and goals.</p></div></header>
+        <nav class="tooltabs" id="tool-tabs" aria-label="Study tools"></nav>
+        <div id="tools-body"></div>
+      </section>
+
+      <section class="view" id="v-settings" hidden>
+        <header class="top"><div><h1>Settings</h1><p>Make it yours.</p></div></header>
+        <div id="settings-body"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="update-banner" role="status" hidden>
+    <span>A new version is ready.</span><button id="update-btn" type="button">Update</button>
+  </div>
+
+  <dialog id="edit-dialog" aria-labelledby="e-h">
+    <h2 id="e-h">Edit assignment</h2>
+    <label class="lbl" for="e-title">Title</label><input id="e-title" type="text">
+    <div class="fields"><div><label class="lbl" for="e-class">Class</label><select id="e-class"></select></div>
+      <div><label class="lbl" for="e-date">Due</label><input id="e-date" type="date"></div></div>
+    <label class="lbl" for="e-notes">Notes</label><textarea id="e-notes" rows="3" placeholder="Pages, links, reminders…"></textarea>
+    <label class="check"><input type="checkbox" id="e-star"> Mark as important</label>
+    <div class="btnrow end"><button class="btn danger" id="e-del" type="button">Delete</button><span class="grow"></span>
+      <button class="btn line" id="e-cancel" type="button">Cancel</button><button class="btn" id="e-save" type="button">Save</button></div>
+  </dialog>
+
+  <!-- ============ HIDDEN SECTION ============ -->
+  <section id="vault" hidden>
+    <header class="vault-top">
+      <nav id="vault-tabs">
+        <button data-tab="games" class="on">Games</button>
+        <button data-tab="videos">Videos</button>
+        <button data-tab="browse">Browse</button>
+        <button data-tab="cloud">Cloud</button>
+      </nav>
+      <button id="exit">Exit</button>
+    </header>
+
+    <div class="pane" id="pane-games">
+      <div class="game-picker">
+        <button data-game="fps" class="on">Arena Strike</button>
+        <button data-game="runner">Neon Rush</button>
+        <button data-game="space">Star Fighter</button>
+        <button data-game="parkour">Sky Parkour</button>
+      </div>
+      <div id="game-area"></div>
+    </div>
+
+    <div class="pane" id="pane-videos" hidden>
+      <form id="video-form">
+        <input id="video-url" type="text" placeholder="Paste a YouTube link" required>
+        <button type="submit">Play</button>
+        <button type="button" id="video-save" class="ghost">Save</button>
+      </form>
+      <div id="video-frame"></div>
+      <h3 class="sec">Suggested</h3>
+      <div class="vgrid" id="suggested"></div>
+      <h3 class="sec" id="mylist-h" hidden>My list</h3>
+      <div class="vgrid" id="mylist"></div>
+      <form id="yt-search-form">
+        <input id="yt-q" type="text" placeholder="Search YouTube (opens a new tab)">
+        <button type="submit">Search</button>
+      </form>
+    </div>
+
+    <div class="pane" id="pane-browse" hidden>
+      <form id="browse-form">
+        <input id="browse-url" type="text" placeholder="Website address, like wikipedia.org" required>
+        <button type="submit">Go</button>
+      </form>
+      <div id="browse-bar" hidden>
+        <span id="browse-status"></span>
+        <button type="button" id="browse-close">Close</button>
+      </div>
+      <div id="browse-frame" hidden></div>
+      <p class="note">Enter a website address. Sites that block embedding (Google, YouTube, social media, and many others) will not load here.</p>
+    </div>
+
+    <div class="pane" id="pane-cloud" hidden>
+      <div id="net-bar" class="netbar" role="status" aria-live="polite">
+        <i id="net-dot"></i><b id="net-type">Checking connection…</b><span id="net-note"></span>
+      </div>
+      <div id="cloud-intro">
+        <p class="note">Cloudmoon streams games from the cloud. Sign in the same way you would on their site. Nothing from this tab is saved by the planner, and closing it removes the page.</p>
+        <label class="check"><input type="checkbox" id="cloud-pop"> Allow sign-in popups (only turn on if Google/Facebook login won't work)</label>
+        <div class="cloud-actions">
+          <button type="button" id="cloud-start" class="obtn">Launch Cloudmoon</button>
+        </div>
+      </div>
+      <div id="cloud-bar" hidden>
+        <span id="cloud-status"></span>
+        <button type="button" id="cloud-two">+ Second screen</button>
+        <button type="button" id="cloud-close">Close</button>
+      </div>
+      <div id="cloud-split" hidden>
+        <div class="cpane" id="cpane-a">
+          <div class="cp-head"><b>Cloudmoon</b><span class="grow"></span><button type="button" data-crop="a">Crop</button><button type="button" data-full="a">Full screen</button></div>
+          <div class="cbody" id="cloud-frame"></div>
+        </div>
+        <div class="cpane" id="cpane-b" hidden>
+          <div class="cp-head">
+            <form id="two-form"><input id="two-url" type="text" placeholder="Address for second screen" aria-label="Second screen address" required><button type="submit">Go</button></form>
+            <button type="button" data-crop="b">Crop</button><button type="button" data-full="b">Full screen</button><button type="button" id="two-close" aria-label="Close second screen">×</button>
+          </div>
+          <div class="cbody" id="two-frame"></div>
+          <p class="note" id="two-status">Sites that block embedding (Google, YouTube, social media) won't load here.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+  <script src="tools.js"></script>
+  <script src="games-core.js"></script>
+  <script src="game-fps.js"></script>
+  <script src="game-runner.js"></script>
+  <script src="game-space.js"></script>
+  <script src="game-parkour.js"></script>
+  <script src="vault.js"></script>
+</body>
+</html>
