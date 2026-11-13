@@ -9,7 +9,10 @@ function openVault() {
   $("#vault").hidden = false;
   document.body.classList.add("in-vault");
   renderVideos();
-  startGame(currentGame);
+  const st = vsLoad();
+  if (GAMES[st.game]) { currentGame = st.game; document.querySelectorAll(".game-picker button").forEach((x) => x.classList.toggle("on", x.dataset.game === currentGame)); }
+  const tb = st.tab && st.tab !== "games" ? document.querySelector(`#vault-tabs [data-tab="${st.tab}"]`) : null;
+  if (tb) tb.click(); else startGame(currentGame);
 }
 function closeVault() {
   stopGame();
@@ -26,6 +29,7 @@ document.addEventListener("visibilitychange", () => { if (document.hidden && !$(
 
 $("#vault-tabs").addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b) return;
+  vsSave({ tab: b.dataset.tab });
   document.querySelectorAll("#vault-tabs button").forEach((x) => x.classList.toggle("on", x === b));
   for (const t of ["games", "videos", "browse", "cloud"]) $("#pane-" + t).hidden = t !== b.dataset.tab;
   if (b.dataset.tab !== "browse") closeBrowse();
@@ -142,7 +146,7 @@ $("#browse-close").onclick = closeBrowse;
 let currentGame = "fps";
 $(".game-picker").addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b) return;
-  currentGame = b.dataset.game;
+  currentGame = b.dataset.game; vsSave({ game: currentGame });
   document.querySelectorAll(".game-picker button").forEach((x) => x.classList.toggle("on", x === b));
   startGame(currentGame);
 });
@@ -272,3 +276,23 @@ for (const k of ["a", "b"]) {
   pane.querySelector(".cp-head").after(p);
   pane.querySelector("[data-crop]").onclick = (e) => { p.hidden = !p.hidden; e.currentTarget.classList.toggle("on", !p.hidden); };
 }
+
+// ----- Remember hidden-side choices on this device (tab, game, popup choice, second-screen address) -----
+// Stored only in this browser's localStorage. Nothing is sent anywhere. Passwords are never stored by the planner.
+function vsLoad() { try { return JSON.parse(localStorage.getItem("vault.state")) || {}; } catch { return {}; } }
+function vsSave(p) { try { localStorage.setItem("vault.state", JSON.stringify({ ...vsLoad(), ...p })); } catch {} }
+(() => { const st = vsLoad(); if (st.pop) $("#cloud-pop").checked = true; if (st.two) $("#two-url").value = st.two; })();
+$("#cloud-pop").addEventListener("change", (e) => vsSave({ pop: e.target.checked }));
+$("#two-form").addEventListener("submit", () => vsSave({ two: $("#two-url").value.trim() }));
+
+// ----- Reload + coming back from a sign-in window -----
+function reloadCloud() {
+  const f = $("#cloud-frame iframe"); if (!f) return;
+  $("#cloud-status").textContent = "Reloading…";
+  const src = f.src; f.src = "about:blank"; setTimeout(() => { f.src = src; }, 150);
+}
+$("#cloud-reload").onclick = reloadCloud;
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && !$("#vault").hidden && !$("#cloud-split").hidden)
+    $("#cloud-status").textContent = "Back from signing in? Tap Reload if the screen is blank.";
+});
