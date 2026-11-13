@@ -378,7 +378,7 @@ input[type=time] { width: 100%; min-width: 0; padding: 12px 13px; min-height: 46
 @media (min-width: 900px) and (orientation: landscape) { #cloud-split.two { flex-direction: row; } #cloud-split { min-height: 420px; } }
 
 /* ---------- crop ---------- */
-.cbody { overflow: hidden; } .cbody iframe { transform: var(--crop, none); transform-origin: 0 0; }
+.cbody { overflow: hidden; } .cbody iframe { width: var(--vw, 100%); height: var(--vh, 100%); transform: var(--vt,) var(--crop,); transform-origin: 0 0; max-width: none; }
 .croppanel { flex: none; display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px 14px; padding: 8px 12px; background: var(--card); border-top: 1px solid var(--line); font-size: .8rem; color: var(--ink-soft); }
 .croppanel label { display: flex; align-items: center; gap: 8px; } .croppanel input { flex: 1; min-width: 0; height: 28px; accent-color: var(--hi); }
 .croppanel button { grid-column: 1 / -1; justify-self: start; background: none; border: 1.5px solid var(--line); border-radius: 8px; padding: 4px 12px; min-height: 36px; color: var(--ink); }
