@@ -258,6 +258,7 @@ function applyCrop(k) {
   body.style.setProperty("--crop", `translate(${ox}%, ${oy}%) scale(${s}) translate(${-c.l * 100}%, ${-c.t * 100}%)`);
 }
 function resetCrop(k) {
+  sizeIdx[k] = 0; applySize(k);
   cropState[k] = { l: 0, t: 0, r: 0, b: 0 }; applyCrop(k);
   const p = document.getElementById("crop-" + k);
   if (p) { p.hidden = true; p.querySelectorAll("input").forEach((i) => (i.value = 0)); }
@@ -296,3 +297,18 @@ document.addEventListener("visibilitychange", () => {
   if (!document.hidden && !$("#vault").hidden && !$("#cloud-split").hidden)
     $("#cloud-status").textContent = "Back from signing in? Tap Reload if the screen is blank.";
 });
+
+// ----- Size: show the page at a bigger "virtual" screen (like Desktop mode), scaled to fit, so wide layouts and ad areas have room -----
+const SIZES = [["Normal", null], ["Desktop", [1280, 720]], ["Large", [1920, 1080]]], sizeIdx = { a: 0, b: 0 };
+function applySize(k) {
+  const body = k === "a" ? $("#cloud-frame") : $("#two-frame"), s = SIZES[sizeIdx[k]][1];
+  const btn = document.querySelector(`[data-size="${k}"]`); if (btn) { btn.textContent = "Size: " + SIZES[sizeIdx[k]][0]; btn.classList.toggle("on", !!s); }
+  if (!s) { for (const p of ["--vw", "--vh", "--vt"]) body.style.removeProperty(p); return; }
+  const bw = body.clientWidth || 1, bh = body.clientHeight || 1, sc = Math.min(bw / s[0], bh / s[1]);
+  body.style.setProperty("--vw", s[0] + "px"); body.style.setProperty("--vh", s[1] + "px");
+  body.style.setProperty("--vt", `translate(${(bw - s[0] * sc) / 2}px, ${(bh - s[1] * sc) / 2}px) scale(${sc})`);
+}
+for (const k of ["a", "b"]) {
+  document.querySelector(`[data-size="${k}"]`).onclick = () => { sizeIdx[k] = (sizeIdx[k] + 1) % SIZES.length; applySize(k); };
+  new ResizeObserver(() => applySize(k)).observe(k === "a" ? $("#cloud-frame") : $("#two-frame"));
+}
