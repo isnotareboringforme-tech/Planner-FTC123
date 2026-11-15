@@ -1,5 +1,5 @@
 // Offline cache. Bump VERSION whenever you change any file: phones then show the "new version" banner.
-const VERSION = "planner-v12";
+const VERSION = "planner-v13";
 const FILES = ["./", "index.html", "style.css", "app.js", "tools.js", "games-core.js", "game-fps.js", "game-runner.js", "game-space.js", "game-parkour.js", "vault.js", "three.module.js", "three.core.js", "manifest.json", "icon-180.png", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", (e) => e.waitUntil(
