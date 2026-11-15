@@ -174,10 +174,12 @@
         <i id="net-dot"></i><b id="net-type">Checking connection…</b><span id="net-note"></span>
       </div>
       <div id="cloud-intro">
+        <div class="seg" id="cloud-svc" role="group" aria-label="Service"><button type="button" data-svc="cloudmoon" class="on">Cloudmoon</button><button type="button" data-svc="xbox">Xbox Cloud</button></div>
         <p class="note">Cloudmoon streams games from the cloud. Sign in the same way you would on their site. Nothing from this tab is saved by the planner, and closing it removes the page.</p>
         <label class="check"><input type="checkbox" id="cloud-pop"> Allow sign-in popups (only turn on if Google/Facebook login won't work)</label>
         <div class="cloud-actions">
-          <button type="button" id="cloud-start" class="obtn">Launch Cloudmoon</button>
+          <button type="button" id="cloud-start" class="obtn">Launch</button>
+          <button type="button" id="cloud-win" class="ghost">Open in its own window</button>
         </div>
       </div>
       <div id="cloud-bar" hidden>
@@ -188,7 +190,7 @@
       </div>
       <div id="cloud-split" hidden>
         <div class="cpane" id="cpane-a">
-          <div class="cp-head"><b>Cloudmoon</b><span class="grow"></span><button type="button" data-size="a">Size: Normal</button><button type="button" data-crop="a">Crop</button><button type="button" data-full="a">Full screen</button></div>
+          <div class="cp-head"><b id="cloud-name">Cloudmoon</b><span class="grow"></span><button type="button" data-size="a">Size: Normal</button><button type="button" data-crop="a">Crop</button><button type="button" data-full="a">Full screen</button></div>
           <div class="cbody" id="cloud-frame"></div>
         </div>
         <div class="cpane" id="cpane-b" hidden>
