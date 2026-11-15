@@ -213,7 +213,7 @@ $("#cloud-start").onclick = () => {
   closeCloud(); updateNet();
   const pop = $("#cloud-pop").checked;
   $("#cloud-intro").hidden = true; $("#cloud-bar").hidden = false; $("#cloud-split").hidden = false;
-  $("#cloud-status").textContent = "Loading Cloudmoon…";
+  $("#cloud-status").textContent = "Loading " + SVC[svc].n + "…";
   const f = document.createElement("iframe");
   f.referrerPolicy = "no-referrer";
   // No allow-popups by default: links that try to open a new tab are blocked, so use the second screen instead.
@@ -221,9 +221,9 @@ $("#cloud-start").onclick = () => {
   f.setAttribute("allow", "fullscreen; gamepad; microphone; autoplay; clipboard-write; clipboard-read");
   f.allowFullscreen = true;
   f.onload = () => { clearTimeout(cloudTimer); $("#cloud-status").textContent = pop ? "Popups allowed for sign-in." : "New-tab links are blocked. Type their address in the second screen."; };
-  f.src = CLOUD_URL;
+  f.src = svcUrl();
   $("#cloud-frame").append(f);
-  cloudTimer = setTimeout(() => { $("#cloud-status").textContent = "Not loading. Cloudmoon may not allow embedding here."; }, 8000);
+  cloudTimer = setTimeout(() => { $("#cloud-status").textContent = "Not loading here. Try \"Open in its own window\" (the site may not allow embedding)."; }, 8000);
 };
 $("#cloud-two").onclick = () => {
   const open = !$("#cpane-b").hidden;
@@ -312,3 +312,12 @@ for (const k of ["a", "b"]) {
   document.querySelector(`[data-size="${k}"]`).onclick = () => { sizeIdx[k] = (sizeIdx[k] + 1) % SIZES.length; applySize(k); };
   new ResizeObserver(() => applySize(k)).observe(k === "a" ? $("#cloud-frame") : $("#two-frame"));
 }
+
+// ----- Service picker (Cloudmoon / Xbox Cloud Gaming) -----
+const SVC = { cloudmoon: { n: "Cloudmoon", u: CLOUD_URL }, xbox: { n: "Xbox Cloud", u: "https://play.xbox.com/" } };
+let svc = SVC[vsLoad().svc] ? vsLoad().svc : "cloudmoon";
+const svcUrl = () => SVC[svc].u;
+function paintSvc() { document.querySelectorAll("#cloud-svc button").forEach((b) => b.classList.toggle("on", b.dataset.svc === svc)); $("#cloud-name").textContent = SVC[svc].n; $("#cloud-start").textContent = "Launch " + SVC[svc].n; }
+$("#cloud-svc").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; svc = b.dataset.svc; vsSave({ svc }); paintSvc(); });
+$("#cloud-win").onclick = () => { updateNet(); window.open(svcUrl(), "_blank", "noopener,noreferrer"); };
+paintSvc();
